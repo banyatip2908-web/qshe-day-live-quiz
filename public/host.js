@@ -61,7 +61,7 @@ function render(s){
      const shape=document.createElement('span');shape.textContent=shapes[i];const t=document.createElement('span');t.textContent=v;el.append(shape,t);grid.append(el);
    });
  }
- if(s.status==='finished'){$('winnerBanner').textContent=s.leaderboard.length?`🥇 ผู้ชนะ: ${s.leaderboard[0].name}`:'ไม่มีผู้แข่งขัน';drawFinalTopFive(s.leaderboard);}
+ if(s.status==='finished'){$('winnerBanner').textContent=s.leaderboard.length?`🥇 ผู้ชนะ: ${s.leaderboard[0].name}`:'ไม่มีผู้แข่งขัน';drawFinalTopFive(s.leaderboard);drawBonusPrize(s);}
  drawLeaderboard(s.leaderboard);tick();
 }
 function drawLeaderboard(items){const el=$('hostLeaderboard');el.replaceChildren();if(!items.length){const p=document.createElement('p');p.className='small-muted';p.textContent='คะแนนจะแสดงหลังเฉลยคำถาม';el.append(p);return;}
@@ -78,6 +78,30 @@ function drawFinalTopFive(items){
   row.append(place,name,score);el.append(row);
  });
 }
+function drawBonusPrize(s){
+ const eligible=Math.max(0,Number(s.bonusEligibleCount)||0);
+ const winner=s.bonusWinner;
+ $('bonusDrawHint').textContent=eligible
+   ?'สุ่มจากอันดับ 6–'+s.players+' รวม '+eligible+' คน (ไม่รวมผู้ชนะ Top 5)'
+   :'ต้องมีผู้เล่นอย่างน้อย 6 คน จึงจะสุ่มรางวัลพิเศษได้';
+ show('bonusDrawBtn',!winner);
+ $('bonusDrawBtn').disabled=eligible<1;
+ show('bonusDrawResult',Boolean(winner));
+ const result=$('bonusDrawResult');
+ result.replaceChildren();
+ if(winner){
+   const icon=document.createElement('div');icon.className='bonus-draw-emoji';icon.textContent='🎉';
+   const name=document.createElement('strong');name.className='bonus-draw-name';name.textContent=winner.name;
+   const detail=document.createElement('span');detail.className='bonus-draw-detail';
+   detail.textContent='อันดับที่ '+winner.rank+' · '+Number(winner.score).toLocaleString('th-TH')+' คะแนน';
+   result.append(icon,name,detail);
+ }
+}
+$('bonusDrawBtn').onclick=()=>{
+ if(state?.status!=='finished'||state.bonusWinner)return;
+ if(Number(state.bonusEligibleCount)<1)return message('ต้องมีผู้เล่นอย่างน้อย 6 คน','error');
+ command('drawPrize');
+};
 function tick(){
  if(!state||!['question','reveal'].includes(state.status)){
   $('hostCountdown').textContent=state?.status==='finished'?'จบเกม':'--';$('hostTimerFill').style.width='100%';return;
