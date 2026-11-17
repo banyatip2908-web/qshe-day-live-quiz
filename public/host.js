@@ -9,7 +9,7 @@ gameAudio.setVolume(Number($('musicVolume').value)/100);
 $('soundToggle').addEventListener('click',async()=>{
  try{
   soundEnabled=await gameAudio.toggle();
-  $('soundToggle').textContent=soundEnabled?'♫ ปิดเพลงเกมโชว์':'♫ เปิดเพลงเกมโชว์มันส์ ๆ';
+  $('soundToggle').textContent=soundEnabled?'♫ ปิดเพลงหมอลำ':'♫ เปิดเพลงหมอลำสนุก ๆ';
   $('soundStatus').textContent=soundEnabled?'เสียงเล่นบนเครื่องพิธีกร':'ปิดเสียงแล้ว';
  }catch(e){$('soundStatus').textContent='ไม่สามารถเล่นเสียงได้ กรุณาตรวจสอบลำโพง';}
 });
