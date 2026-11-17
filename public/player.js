@@ -1,9 +1,16 @@
+import {createAnswerEffects} from './sound.js';
 const $=id=>document.getElementById(id);
 const show=(id,yes)=>$(id).classList.toggle('hidden',!yes);
 const shapes=['▲','◆','●','■'];
 const qs=new URLSearchParams(location.search);
 if(qs.get('pin'))$('pin').value=qs.get('pin');
 let socket=null,pin='',identity=null,state=null,reconnect=null,clock=null,answered=null,clockSkew=0;
+const answerEffects=createAnswerEffects();
+let lastRevealKey=null;
+$('answerSoundToggle').addEventListener('click',async()=>{
+ try{const on=await answerEffects.toggle();$('answerSoundToggle').textContent=on?'🔊 ปิดเสียงเฉลย':'🔈 เปิดเสียงเฉลย';}
+ catch{$('answerSoundToggle').textContent='อุปกรณ์ไม่รองรับเสียง';}
+});
 const api=async (path,body)=>{const res=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await res.json();if(!res.ok)throw new Error(d.error||'เชื่อมต่อไม่สำเร็จ');return d;};
 const savedSession=k=>{try{return JSON.parse(localStorage.getItem('qshe-session-'+k)||'null')}catch{return null}};
 $('joinForm').addEventListener('submit',async ev=>{
@@ -40,6 +47,11 @@ function render(s){
  }
  if(s.status==='reveal'){
    const q=s.question;
+   const revealKey=s.pin+':'+q.index+':'+q.endAt;
+   if(lastRevealKey!==revealKey){
+     lastRevealKey=revealKey;
+     answerEffects.play(s.yourAnswer===null?'timeout':s.yourAnswer===q.correct?'correct':'wrong');
+   }
    $('resultEyebrow').textContent=`เฉลยข้อ ${q.index} / ${q.total}`;
    $('resultHeadline').textContent=s.yourAnswer===null?'หมดเวลาตอบ!':s.yourAnswer===q.correct?'ตอบถูกต้อง! 🎉':'ลุ้นข้อถัดไปกันต่อ!';
    $('correctText').textContent='คำตอบที่ถูกต้อง: '+q.choices[q.correct];
