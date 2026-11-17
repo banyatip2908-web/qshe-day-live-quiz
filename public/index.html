@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111430"><meta name="description" content="เกมตอบคำถามสด QSHE DAY Climate Change Challenge">
+<title>QSHE Quiz | เข้าร่วมเกม</title><link rel="stylesheet" href="/style.css"><script src="/player.js" type="module"></script></head>
+<body class="player-bg">
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar"><a class="brand" href="/"><span class="brand-mark">✦</span><span>QSHE <strong>DAY 2026</strong></span></a><span class="header-pill"><i></i> CLIMATE CHANGE CHALLENGE</span></header>
+  <main class="player-shell">
+    <section id="joinView" class="join-card glass">
+      <div class="floating-icon">🌍</div><div class="eyebrow">ยินดีต้อนรับเข้าสู่</div>
+      <h1>เกมตอบคำถาม<br><span class="gradient-text">Climate Quest!</span></h1>
+      <p class="lead">สุ่ม 10 ข้อ จากป้ายไวนิลทั้ง 3 แผ่น · แข่งขันพร้อมกันสูงสุด 100 คน</p>
+      <form id="joinForm" class="form-stack">
+        <label for="pin">รหัสห้องเกม (PIN)</label><input inputmode="numeric" maxlength="6" id="pin" placeholder="123456" required autocomplete="off" pattern="[0-9]{6}" class="big-input numeric-input" />
+        <label for="nick">ชื่อผู้เล่น / ชื่อเล่น</label><input id="nick" placeholder="เช่น ทีมสิ่งแวดล้อม" maxlength="24" required autocomplete="nickname" class="big-input" />
+        <button id="joinButton" class="primary-btn" type="submit">เข้าร่วมเกม <span>➜</span></button>
+        <p id="joinError" class="error-msg" aria-live="polite"></p>
+      </form><p class="hint-bottom">ไม่ต้องติดตั้งแอป · ใช้มือถือหรือคอมพิวเตอร์ก็ได้</p>
+    </section>
+    <section id="gameView" class="game-view hidden" aria-live="polite">
+      <div class="player-status glass"><div><small>ห้อง <b id="roomNum">------</b></small><strong id="displayName">ผู้เล่น</strong></div><div class="score-pill"><small>คะแนนของฉัน</small><strong id="myScore">0</strong></div></div>
+      <div id="connectionWarn" class="notice hidden">กำลังเชื่อมต่อใหม่…</div>
+      <section id="lobby" class="content-card glass"><div class="centered-content"><div class="orbit-earth">🌎</div><div class="eyebrow">เข้าร่วมสำเร็จ!</div><h2>พร้อมแล้วใช่ไหม?</h2><p>รอพิธีกรเริ่มเกม และเตรียมตัวตอบคำถามให้ไวที่สุด</p><div class="pulsing"><span></span> รอเริ่มการแข่งขัน</div></div></section>
+      <section id="question" class="content-card glass hidden">
+        <div class="question-header"><span class="topic-pill" id="topic">CLIMATE CHANGE</span><strong id="questionCount">ข้อ 1 / 10</strong></div>
+        <div class="timer-wrap"><div class="timer-bar"><div id="timerFill"></div></div><strong id="timerText">25s</strong></div>
+        <h2 id="questionText" class="question-heading">คำถามจะแสดงที่นี่</h2>
+        <div id="options" class="options-grid"></div>
+        <div id="answeredMessage" class="answered hidden"><div class="check-round">✓</div><h3>ส่งคำตอบแล้ว!</h3><p>รอเฉลยจากพิธีกรได้เลย</p></div>
+      </section>
+      <section id="results" class="content-card glass hidden"><div class="centered-content"><div class="big-emoji">✨</div><div class="eyebrow" id="resultEyebrow">เฉลยคำตอบ</div><h2 id="resultHeadline">ตอบถูกหรือเปล่านะ?</h2><p id="correctText"></p><p id="explainText" class="quiz-explain"></p><div class="result-stat"><span>คะแนนสะสม</span><strong id="revealScore">0</strong></div><div class="rank-text" id="revealRank"></div><p class="small-muted">รอคำถามข้อต่อไปจากพิธีกร</p></div></section>
+      <section id="finished" class="content-card glass hidden"><div class="centered-content"><div class="big-emoji">🏆</div><div class="eyebrow">จบการแข่งขัน</div><h2>เก่งมากทุกคน!</h2><p>ผลการแข่งขัน QSHE Day Climate Change Challenge</p><div class="finish-score" id="finishScore">0 <small>คะแนน</small></div><div id="finishRank" class="rank-text"></div><div class="leaderboard" id="playerLeaderboard"></div></div></section>
+    </section>
+  </main>
+  <footer class="footer">ENVIRONMENT DEPARTMENT · QSHE DAY 2026</footer>
+</body></html>
