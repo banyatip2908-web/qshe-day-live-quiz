@@ -6,6 +6,7 @@ const digits = s => /^\d{6}$/.test(s || '');
 const auth = (request, env) => Boolean(env.CREATE_KEY) && request.headers.get('X-Create-Key') === env.CREATE_KEY;
 const roomStub = (env,pin) => env.ROOMS.get(env.ROOMS.idFromName(pin));
 const secret = () => crypto.randomUUID()+'-'+crypto.randomUUID();
+const REVEAL_DURATION_MS = 6000; // Show the answer before advancing automatically
 
 export default {
   async fetch(request, env) {
@@ -143,7 +144,7 @@ export class QuizRoom extends DurableObject {
     const showRanking=status==='reveal'||status==='finished';
     return {type:'state',pin,status,serverNow:Date.now(),question:this.questionPublic(),players:this.players.size,answered:this.answerCount(),
       yourName:p?.name, yourScore:place?.score||0, yourRank:showRanking?place?.rank:null, yourAnswer:answered===undefined?null:answered.selected,
-      leaderboard:showRanking?ranking.slice(0,status==='finished'?10:5).map(({name,score,rank})=>({name,score,rank})):[],
+      leaderboard:showRanking?ranking.slice(0,5).map(({name,score,rank})=>({name,score,rank})):[],
       ...(host?{questions, host:true}: {})};
   }
   safeSend(ws,msg){try{ws.send(JSON.stringify(msg));}catch{}}
@@ -168,16 +169,21 @@ export class QuizRoom extends DurableObject {
     }
     if(type==='next'){
       if(this.game.status!=='reveal') throw new Error('กรุณาเฉลยคำถามก่อน');
-      if(this.game.index >= this.game.order.length-1){
-        this.game.status='finished';this.game.endAt=0;await this.saveGame();this.broadcastAll();return;
-      }
-      this.game.index+=1;await this.startQuestion();return;
+      await this.advanceQuestion();return;
     }
     if(type==='reset'){
       this.game.status='lobby';this.game.index=-1;this.game.order=[];this.game.optionOrders=[];this.game.endAt=0;this.game.roundId++;
       await this.ctx.storage.deleteAlarm();await this.saveGame();this.broadcastAll();return;
     }
     throw new Error('ไม่รองรับคำสั่งนี้');
+  }
+  async advanceQuestion(){
+    if(this.game.status!=='reveal')return;
+    if(this.game.index>=this.game.order.length-1){
+      this.game.status='finished';this.game.endAt=0;
+      await this.ctx.storage.deleteAlarm();await this.saveGame();this.broadcastAll();return;
+    }
+    this.game.index+=1;await this.startQuestion();
   }
   async startQuestion(){
     const q=this.roundQuestion();
@@ -186,10 +192,15 @@ export class QuizRoom extends DurableObject {
   }
   async reveal(){
     if(this.game.status!=='question')return;
-    this.game.status='reveal';this.game.endAt=0;
-    await this.ctx.storage.deleteAlarm();await this.saveGame();this.broadcastAll();
+    this.game.status='reveal';this.game.endAt=Date.now()+REVEAL_DURATION_MS;
+    await this.saveGame();await this.ctx.storage.setAlarm(this.game.endAt);this.broadcastAll();
   }
-  async alarm(){await this.ready;if(this.game?.status==='question' && Date.now()>=this.game.endAt)await this.reveal();}
+  async alarm(){
+    await this.ready;
+    if(!this.game||!this.game.endAt||Date.now()<this.game.endAt)return;
+    if(this.game.status==='question')await this.reveal();
+    else if(this.game.status==='reveal')await this.advanceQuestion();
+  }
   async webSocketMessage(ws,raw){
     await this.ready;
     const a=ws.deserializeAttachment();if(!a)return;

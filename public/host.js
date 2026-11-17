@@ -1,6 +1,18 @@
+import {createGameAudio} from './sound.js';
 const $=id=>document.getElementById(id),show=(id,yes)=>$(id).classList.toggle('hidden',!yes);
 const shapes=['▲','◆','●','■'];
 let room='',token='',socket=null,state=null,clockSkew=0,questions=[],editAt=-1,reconnect=null,dirty=false;
+const gameAudio=createGameAudio();
+let soundEnabled=false;
+$('musicVolume').addEventListener('input',()=>gameAudio.setVolume(Number($('musicVolume').value)/100));
+gameAudio.setVolume(Number($('musicVolume').value)/100);
+$('soundToggle').addEventListener('click',async()=>{
+ try{
+  soundEnabled=await gameAudio.toggle();
+  $('soundToggle').textContent=soundEnabled?'♫ ปิดเพลงประกอบ':'♫ เปิดเพลงประกอบ';
+  $('soundStatus').textContent=soundEnabled?'เสียงเล่นบนเครื่องพิธีกร':'ปิดเสียงแล้ว';
+ }catch(e){$('soundStatus').textContent='ไม่สามารถเล่นเสียงได้ กรุณาตรวจสอบลำโพง';}
+});
 const deepCopy=x=>JSON.parse(JSON.stringify(x));
 const saved=()=>{try{return JSON.parse(localStorage.getItem('qshe-host')||'null')}catch{return null}};
 const initial=(()=>{const h=location.hash.slice(1).split('.');return h.length===2?{pin:h[0],token:h[1]}:saved()})();
@@ -30,11 +42,13 @@ function message(s,kind='ok'){const el=$('hostMessage');el.textContent=s;el.styl
 function command(type,additional={}){if(socket?.readyState!==WebSocket.OPEN){message('ยังไม่เชื่อมต่อเซิร์ฟเวอร์','error');return;}socket.send(JSON.stringify({type,...additional}));}
 function render(s){
  const wasLobby=state?.status==='lobby';state=s;clockSkew=Date.now()-(s.serverNow||Date.now());
+ gameAudio.setPhase(s.status);
  $('phaseLabel').textContent={lobby:'รอเริ่มเกม',question:'กำลังตอบคำถาม',reveal:'เฉลยคำตอบ',finished:'เกมจบแล้ว'}[s.status]||s.status;
  $('stageTag').textContent=s.status.toUpperCase();updateStats(s);$('totalQuestions').textContent=10;
  show('lobbyStage',s.status==='lobby');show('questionStage',['question','reveal'].includes(s.status));show('finishStage',s.status==='finished');
  show('startBtn',s.status==='lobby');show('revealBtn',s.status==='question');show('nextBtn',s.status==='reveal');
- $('nextBtn').textContent=s.question?.index===s.question?.total?'🏁 จบเกม':'ข้อถัดไป ➜';
+ $('nextBtn').textContent=s.question?.index===s.question?.total?'⏭ จบเกมทันที':'⏭ ข้ามช่วงเฉลย';
+ show('autoAdvanceMessage',s.status==='reveal');
  $('editState').textContent=s.status==='lobby'?'แก้ไขก่อนเริ่มเกม':'ล็อกการแก้ไขแล้ว';
  $('addQ').disabled=s.status!=='lobby';$('saveQ').disabled=s.status!=='lobby';$('importQ').disabled=s.status!=='lobby';
  if(!dirty || !wasLobby || s.status!=='lobby'){questions=deepCopy(s.questions);dirty=false;drawQuestions();}
@@ -47,14 +61,35 @@ function render(s){
      const shape=document.createElement('span');shape.textContent=shapes[i];const t=document.createElement('span');t.textContent=v;el.append(shape,t);grid.append(el);
    });
  }
- if(s.status==='finished'){$('winnerBanner').textContent=s.leaderboard.length?`🥇 ${s.leaderboard[0].name} — ${s.leaderboard[0].score.toLocaleString('th-TH')} คะแนน`:'ไม่มีผู้แข่งขัน';}
+ if(s.status==='finished'){$('winnerBanner').textContent=s.leaderboard.length?`🥇 ผู้ชนะ: ${s.leaderboard[0].name}`:'ไม่มีผู้แข่งขัน';drawFinalTopFive(s.leaderboard);}
  drawLeaderboard(s.leaderboard);tick();
 }
 function drawLeaderboard(items){const el=$('hostLeaderboard');el.replaceChildren();if(!items.length){const p=document.createElement('p');p.className='small-muted';p.textContent='คะแนนจะแสดงหลังเฉลยคำถาม';el.append(p);return;}
  items.forEach(p=>{const row=document.createElement('div');row.className='leader-row';const badge=document.createElement('span');badge.className='rank';badge.textContent=p.rank;const name=document.createElement('span');name.className='leader-name';name.textContent=p.name;const points=document.createElement('span');points.className='leader-score';points.textContent=p.score.toLocaleString('th-TH');row.append(badge,name,points);el.append(row);});
 }
-function tick(){if(state?.status!=='question'){$('hostCountdown').textContent='--';$('hostTimerFill').style.width=state?.status==='reveal'?'0%':'100%';return;}
- const left=Math.max(0,state.question.endAt-(Date.now()-clockSkew));$('hostCountdown').textContent=Math.ceil(left/1000)+'s';$('hostTimerFill').style.width=Math.max(0,100*left/(state.question.seconds*1000))+'%';}
+function drawFinalTopFive(items){
+ const el=$('finalTopFive');el.replaceChildren();
+ if(!items?.length){const msg=document.createElement('p');msg.textContent='ยังไม่มีผู้เล่นที่ทำคะแนน';el.append(msg);return;}
+ items.slice(0,5).forEach((p,i)=>{
+  const row=document.createElement('div');row.className='final-rank-row rank-pos-'+(i+1);
+  const place=document.createElement('span');place.className='final-rank-badge';place.textContent=['🥇','🥈','🥉','4','5'][i];
+  const name=document.createElement('strong');name.className='final-rank-name';name.textContent=p.name;
+  const score=document.createElement('strong');score.className='final-rank-score';score.textContent=p.score.toLocaleString('th-TH')+' คะแนน';
+  row.append(place,name,score);el.append(row);
+ });
+}
+function tick(){
+ if(!state||!['question','reveal'].includes(state.status)){
+  $('hostCountdown').textContent=state?.status==='finished'?'จบเกม':'--';$('hostTimerFill').style.width='100%';return;
+ }
+ const left=Math.max(0,state.question.endAt-(Date.now()-clockSkew));
+ $('hostCountdown').textContent=Math.ceil(left/1000)+'s';
+ const total=state.status==='question'?state.question.seconds*1000:6000;
+ $('hostTimerFill').style.width=Math.max(0,100*left/total)+'%';
+ if(state.status==='reveal')$('autoAdvanceMessage').textContent=state.question.index===state.question.total
+   ?'จบเกมและแสดง TOP 5 อัตโนมัติใน '+Math.ceil(left/1000)+' วินาที'
+   :'ไปข้อ '+(state.question.index+1)+' อัตโนมัติใน '+Math.ceil(left/1000)+' วินาที';
+}
 setInterval(tick,160);setInterval(()=>{if(socket?.readyState===WebSocket.OPEN)socket.send('ping')},25000);
 $('copyPin').onclick=()=>copy(room);
 $('copyLink').onclick=()=>copy(location.origin+'/?pin='+room);
