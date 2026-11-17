@@ -9,3 +9,16 @@
 
 /* QSHE 2026: original music controls, auto-next clock and final leaderboard */
 .music-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:15px}.music-controls label{display:flex;gap:8px;align-items:center;font-size:12px;color:#c8d5fa}.music-controls input{accent-color:#a978fc;width:110px}.auto-next-text{color:#9df6dc;margin:10px auto;text-align:center;font-weight:700}.auto-next-text.hidden{display:none}.top-five-heading{font:700 clamp(21px,2.5vw,31px) Kanit,sans-serif;margin:23px 0 13px;color:#f9eec7}.final-top-five{max-width:720px;margin:10px auto 20px;display:grid;gap:10px}.final-rank-row{display:flex;align-items:center;gap:16px;padding:15px 19px;border-radius:15px;background:linear-gradient(100deg,#ffffff1b,#ffffff09);border:1px solid #ffffff25;text-align:left}.final-rank-row.rank-pos-1{background:linear-gradient(110deg,#d99f2b70,#693b9c50);border-color:#e4bf73}.final-rank-badge{flex:0 0 44px;font-size:24px;text-align:center}.final-rank-name{flex:1;font-size:clamp(17px,2vw,25px);overflow-wrap:anywhere}.final-rank-score{font-size:clamp(16px,1.7vw,23px);color:#e3f5ff;text-align:right;white-space:nowrap}.stage:fullscreen .final-top-five{max-width:950px}.stage:fullscreen .final-rank-row{padding:22px}.stage:fullscreen .final-rank-name{font-size:2.3vw}.stage:fullscreen .final-rank-score{font-size:2.2vw}@media(max-width:520px){.final-rank-row{gap:9px;padding:11px}.final-rank-badge{flex-basis:28px;font-size:18px}.final-rank-name{font-size:14px}.final-rank-score{font-size:12px}.music-controls{justify-content:center}}
+
+/* One-time lucky draw for players ranked sixth onward after final results */
+.bonus-prize-panel{max-width:720px;margin:25px auto 8px;padding:22px;border:1px solid #ffd67a77;border-radius:20px;background:linear-gradient(120deg,#bd813526,#6f4ac82e);text-align:center}
+.bonus-prize-panel h3{font:700 clamp(20px,2vw,28px) Kanit,sans-serif;color:#ffebba;margin:0 0 6px}
+.bonus-prize-hint{color:#d7dffa!important;font-size:14px!important;margin:6px auto 17px!important}
+.bonus-draw-btn{font-size:18px;min-height:53px;padding:12px 22px}.bonus-draw-btn:disabled{opacity:.55;cursor:not-allowed}
+.bonus-draw-result{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;animation:bonusShow .6s ease-out}
+.bonus-draw-result.hidden{display:none}
+.bonus-draw-emoji{font-size:56px;line-height:1.3}
+.bonus-draw-name{font:800 clamp(24px,3vw,39px) Kanit,sans-serif;color:#ffe19c;overflow-wrap:anywhere}
+.bonus-draw-detail{font-size:clamp(15px,1.5vw,21px);color:#e5f1ff}
+.stage:fullscreen .bonus-prize-panel{max-width:950px}
+@keyframes bonusShow{from{opacity:0;transform:scale(.86) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
