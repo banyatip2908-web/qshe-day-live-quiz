@@ -67,7 +67,7 @@ export class QuizRoom extends DurableObject {
       if (this.game) return json({error:'Room already exists'},409);
       const {pin,hostToken} = await request.json();
       if (!digits(pin) || !hostToken) return json({error:'Invalid room'},400);
-      this.game = {pin,hostToken,questions:DEFAULT_QUESTIONS,order:[],optionOrders:[],index:-1,status:'lobby',endAt:0,roundId:1,createdAt:Date.now()};
+      this.game = {pin,hostToken,questions:DEFAULT_QUESTIONS,order:[],optionOrders:[],index:-1,status:'lobby',endAt:0,roundId:1,bonusWinner:null,createdAt:Date.now()};
       await this.saveGame();
       return json({ok:true},201);
     }
@@ -145,7 +145,7 @@ export class QuizRoom extends DurableObject {
     return {type:'state',pin,status,serverNow:Date.now(),question:this.questionPublic(),players:this.players.size,answered:this.answerCount(),
       yourName:p?.name, yourScore:place?.score||0, yourRank:showRanking?place?.rank:null, yourAnswer:answered===undefined?null:answered.selected,
       leaderboard:showRanking?ranking.slice(0,5).map(({name,score,rank})=>({name,score,rank})):[],
-      ...(host?{questions, host:true}: {})};
+      ...(host?{questions, host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
   }
   safeSend(ws,msg){try{ws.send(JSON.stringify(msg));}catch{}}
   sendState(ws){const a=ws.deserializeAttachment();if(a)this.safeSend(ws,this.stateFor(a));}
@@ -171,8 +171,24 @@ export class QuizRoom extends DurableObject {
       if(this.game.status!=='reveal') throw new Error('กรุณาเฉลยคำถามก่อน');
       await this.advanceQuestion();return;
     }
+    if(type==='drawPrize'){
+      if(this.game.status!=='finished')throw new Error('สุ่มรางวัลพิเศษได้หลังจบเกมเท่านั้น');
+      if(this.game.bonusWinner)throw new Error('รางวัลพิเศษถูกสุ่มไปแล้วในรอบนี้');
+      const eligible=this.ranking().slice(5); // Exclude the five highest-scoring players.
+      if(!eligible.length)throw new Error('ต้องมีผู้เล่นอย่างน้อย 6 คนจึงจะสุ่มรางวัลพิเศษได้');
+      // Unbiased cryptographic draw, performed once on the server and saved.
+      const range=4294967296;
+      const limit=Math.floor(range/eligible.length)*eligible.length;
+      const values=new Uint32Array(1);
+      do{crypto.getRandomValues(values);}while(values[0]>=limit);
+      const winner=eligible[values[0]%eligible.length];
+      this.game.bonusWinner={id:winner.id,name:winner.name,rank:winner.rank,score:winner.score};
+      await this.saveGame();
+      this.broadcastAll();
+      return;
+    }
     if(type==='reset'){
-      this.game.status='lobby';this.game.index=-1;this.game.order=[];this.game.optionOrders=[];this.game.endAt=0;this.game.roundId++;
+      this.game.status='lobby';this.game.index=-1;this.game.order=[];this.game.optionOrders=[];this.game.endAt=0;this.game.roundId++;this.game.bonusWinner=null;
       await this.ctx.storage.deleteAlarm();await this.saveGame();this.broadcastAll();return;
     }
     throw new Error('ไม่รองรับคำสั่งนี้');
