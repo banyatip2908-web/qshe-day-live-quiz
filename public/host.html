@@ -10,7 +10,13 @@
       <section class="stage glass"><div class="section-title"><h2>เวทีการแข่งขัน</h2><span id="stageTag" class="tag">LOBBY</span></div>
         <div id="lobbyStage" class="stage-content"><div class="stage-emoji">🌍</div><h2>เข้าร่วมเกมได้เลย!</h2><p>สแกน QR หรือเปิดลิงก์บนโทรศัพท์ แล้วกรอกชื่อเพื่อเริ่มแข่งขัน</p><div class="invite"><div class="qr-frame"><img id="roomQr" alt="คิวอาร์โค้ดเข้าร่วมเกม" width="190" height="190" /></div><div class="invite-info"><span class="eyebrow">JOIN THE GAME</span><strong id="invitePin">------</strong><p id="inviteUrl">https://…</p><button id="copyLink" class="outline-btn">คัดลอกลิงก์ผู้เล่น</button></div></div></div>
         <div id="questionStage" class="stage-content hidden"><div class="question-header"><span id="hostQuestionTopic" class="topic-pill"></span><span id="hostQuestionNumber"></span></div><div class="host-timer"><div class="timer-bar"><div id="hostTimerFill"></div></div></div><h2 id="hostQuestionText" class="host-question"></h2><div id="hostOptions" class="options-grid"></div><p id="hostExplain" class="quiz-explain hidden"></p><p id="autoAdvanceMessage" class="auto-next-text hidden" aria-live="polite"></p></div>
-        <div id="finishStage" class="stage-content hidden"><div class="stage-emoji">🏆</div><h2>จบเกมแล้ว!</h2><p>ขอบคุณทุกคนที่ร่วมเรียนรู้เรื่อง Climate Change</p><p class="winner-banner" id="winnerBanner"></p><h3 class="top-five-heading">🏆 TOP 5 ผู้ทำคะแนนสูงสุด</h3><div id="finalTopFive" class="final-top-five" aria-live="polite"></div></div>
+        <div id="finishStage" class="stage-content hidden"><div class="stage-emoji">🏆</div><h2>จบเกมแล้ว!</h2><p>ขอบคุณทุกคนที่ร่วมเรียนรู้เรื่อง Climate Change</p><p class="winner-banner" id="winnerBanner"></p><h3 class="top-five-heading">🏆 TOP 5 ผู้ทำคะแนนสูงสุด</h3><div id="finalTopFive" class="final-top-five" aria-live="polite"></div>
+        <section class="bonus-prize-panel">
+          <h3>🎁 จับรางวัลพิเศษอีก 1 รางวัล</h3>
+          <p id="bonusDrawHint" class="bonus-prize-hint">เฉพาะผู้เล่นนอก Top 5</p>
+          <button type="button" id="bonusDrawBtn" class="primary-btn bonus-draw-btn">🎲 สุ่มผู้โชคดี 1 คน</button>
+          <div id="bonusDrawResult" class="bonus-draw-result hidden" aria-live="polite"></div>
+        </section></div>
         <div class="stage-controls"><button id="startBtn" class="primary-btn control-btn">▶ เริ่มเกม</button><button id="revealBtn" class="orange-btn control-btn hidden">👀 เฉลยก่อนหมดเวลา</button><button id="nextBtn" class="primary-btn control-btn hidden">⏭ ข้ามช่วงเฉลย</button><button id="resetBtn" class="outline-btn">↺ เริ่มรอบใหม่</button><button id="fullscreenBtn" class="outline-btn">⛶ เต็มจอ</button></div>
         <p class="status-msg" id="hostMessage" aria-live="polite"></p>
       </section>
