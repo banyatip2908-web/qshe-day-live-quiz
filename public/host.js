@@ -4,12 +4,39 @@ const shapes=['▲','◆','●','■'];
 let room='',token='',socket=null,state=null,clockSkew=0,questions=[],editAt=-1,reconnect=null,dirty=false;
 const gameAudio=createGameAudio();
 let soundEnabled=false;
+let youtubeMode=false;
+function closeYoutubeMusic(){
+ youtubeMode=false;
+ show('referenceMusicPanel',false);
+ $('referenceMusicPlayer').replaceChildren(); // Removing iframe stops its playback.
+ $('youtubeSongToggle').textContent='▶ หมอลำแสดงสด (YouTube)';
+}
+$('youtubeSongToggle').addEventListener('click',async()=>{
+ if(youtubeMode){closeYoutubeMusic();$('soundStatus').textContent='ปิดเพลง YouTube แล้ว';return;}
+ if(soundEnabled){
+  soundEnabled=await gameAudio.toggle();
+  $('soundToggle').textContent='♫ เพลงหมอลำสังเคราะห์';
+ }
+ youtubeMode=true;
+ const frame=document.createElement('iframe');
+ frame.title='สาววังสะพุง – ใหม่พัชรี แสดงสด (YouTube)';
+ frame.src='https://www.youtube-nocookie.com/embed/bEik0pgrMJE?rel=0&playsinline=1';
+ frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+ frame.referrerPolicy='strict-origin-when-cross-origin';
+ frame.allowFullscreen=true;
+ frame.loading='eager';
+ $('referenceMusicPlayer').replaceChildren(frame);
+ show('referenceMusicPanel',true);
+ $('youtubeSongToggle').textContent='■ ปิดเพลง YouTube';
+ $('soundStatus').textContent='กด ▶ บนวิดีโอ YouTube เพื่อเปิดเพลงหมอลำจริง';
+});
 $('musicVolume').addEventListener('input',()=>gameAudio.setVolume(Number($('musicVolume').value)/100));
 gameAudio.setVolume(Number($('musicVolume').value)/100);
 $('soundToggle').addEventListener('click',async()=>{
  try{
+  if(youtubeMode)closeYoutubeMusic();
   soundEnabled=await gameAudio.toggle();
-  $('soundToggle').textContent=soundEnabled?'♫ ปิดเพลงหมอลำ':'♫ เปิดเพลงหมอลำสนุก ๆ';
+  $('soundToggle').textContent=soundEnabled?'♫ ปิดเพลงสังเคราะห์':'♫ เพลงหมอลำสังเคราะห์';
   $('soundStatus').textContent=soundEnabled?'เสียงเล่นบนเครื่องพิธีกร':'ปิดเสียงแล้ว';
  }catch(e){$('soundStatus').textContent='ไม่สามารถเล่นเสียงได้ กรุณาตรวจสอบลำโพง';}
 });
