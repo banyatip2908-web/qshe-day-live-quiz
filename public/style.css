@@ -22,3 +22,15 @@
 .bonus-draw-detail{font-size:clamp(15px,1.5vw,21px);color:#e5f1ff}
 .stage:fullscreen .bonus-prize-panel{max-width:950px}
 @keyframes bonusShow{from{opacity:0;transform:scale(.86) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* The provided reference track is offered solely through the official YouTube embed. */
+.reference-music-panel{margin:14px 0 20px;padding:18px;display:grid;gap:12px}
+.reference-music-panel.hidden{display:none}
+.reference-music-intro{display:flex;flex-direction:column;gap:6px}
+.reference-music-intro strong{font-size:16px;color:#ffdc9b}
+.reference-music-intro span,.reference-music-footer span{font-size:12px;color:#cbd4ed}
+.reference-music-player{width:min(100%,480px);min-height:240px;aspect-ratio:16/10;background:#10142b;border-radius:12px;overflow:hidden}
+.reference-music-player iframe{display:block;width:100%;height:100%;min-height:240px;border:0}
+.reference-music-footer{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.reference-music-footer a{color:#a7dcff;text-decoration:underline}
+@media(max-width:620px){.reference-music-panel{padding:12px}.reference-music-player{width:100%;min-height:210px}.reference-music-player iframe{min-height:210px}}
