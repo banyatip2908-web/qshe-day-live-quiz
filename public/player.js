@@ -77,7 +77,7 @@ function tick(){if(!state || state.status!=='question')return;
 }
 async function sendAnswer(choice){if(!state||state.status!=='question'||answered!==null||remaining()<=0)return;
  if(socket?.readyState!==WebSocket.OPEN){show('connectionWarn',true);$('connectionWarn').textContent='ยังไม่เชื่อมต่อ กรุณารอสักครู่';return;}
- answered=choice;updateAnswers();socket.send(JSON.stringify({type:'answer',choice}));
+ answered=choice;updateAnswers();socket.send(JSON.stringify({type:'answer',choice,questionIndex:state.question.index}));
 }
 function renderLeaderboard(id,items){const target=$(id);target.replaceChildren();items.forEach(p=>{const row=document.createElement('div');row.className='leader-row';for(const [cls,value] of [['rank',p.rank],['leader-name',p.name],['leader-score',p.score.toLocaleString('th-TH')]]){const el=document.createElement('span');el.className=cls;el.textContent=value;row.append(el);}target.append(row);});}
 setInterval(()=>{tick();if(socket?.readyState===WebSocket.OPEN){}},170);
