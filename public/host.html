@@ -11,15 +11,6 @@
        <div class="reference-music-footer"><a href="https://www.youtube.com/watch?v=bEik0pgrMJE" target="_blank" rel="noopener noreferrer">เปิดคลิปต้นฉบับบน YouTube</a><span>หากเจ้าของคลิปไม่อนุญาตให้ฝัง สามารถเปิดใน YouTube แทนได้ · ระดับเสียงควบคุมผ่านวิดีโอ/ลำโพง</span></div>
     </div>
     <div class="host-stats"><div class="stat glass"><span class="stat-icon">👥</span><div><strong id="playerCount">0/100</strong><small>ผู้เข้าร่วม</small></div></div><div class="stat glass"><span class="stat-icon">✅</span><div><strong id="answeredCount">0</strong><small>ตอบข้อนี้แล้ว</small></div></div><div class="stat glass"><span class="stat-icon">🎯</span><div><strong id="totalQuestions">10</strong><small>จำนวนข้อที่เล่น</small></div></div><div class="stat glass"><span class="stat-icon">⏱</span><div><strong id="hostCountdown">--</strong><small>เวลาที่เหลือ</small></div></div></div>
-    <section class="roster-panel glass" aria-label="รายชื่อผู้เข้าร่วมเกม">
-      <div class="roster-heading">
-        <div><h2>👥 รายชื่อผู้เข้าร่วมเกม <span class="roster-count" id="rosterCount">0 / 100 คน</span></h2>
-          <p id="rosterSubtitle" class="small-muted">แสดงผู้ที่เข้าร่วมสำเร็จหลังกรอกชื่อ ไม่ใช่เพียงสแกน QR</p></div>
-        <label class="roster-search-label" for="rosterSearch">ค้นหาชื่อ <input id="rosterSearch" type="search" placeholder="พิมพ์ชื่อผู้เล่น…" autocomplete="off" /></label>
-      </div>
-      <div class="roster-progress" aria-hidden="true"><span id="rosterProgressFill"></span></div>
-      <div class="roster-list" id="rosterList" aria-live="polite"><p class="small-muted">ยังไม่มีผู้เข้าร่วมเกม</p></div>
-    </section>
     <div class="host-layout">
       <section class="stage glass"><div class="section-title"><h2>เวทีการแข่งขัน</h2><span id="stageTag" class="tag">LOBBY</span></div>
         <div id="lobbyStage" class="stage-content"><div class="stage-emoji">🌍</div><h2>เข้าร่วมเกมได้เลย!</h2><p>สแกน QR หรือเปิดลิงก์บนโทรศัพท์ แล้วกรอกชื่อเพื่อเริ่มแข่งขัน · ระบบยึดจำนวนผู้เล่นที่เข้าร่วมก่อนเริ่มรอบ</p><div class="invite"><div class="qr-frame"><img id="roomQr" alt="คิวอาร์โค้ดเข้าร่วมเกม" width="190" height="190" /></div><div class="invite-info"><span class="eyebrow">JOIN THE GAME</span><strong id="invitePin">------</strong><p id="inviteUrl">https://…</p><button id="copyLink" class="outline-btn">คัดลอกลิงก์ผู้เล่น</button></div></div></div>
@@ -34,7 +25,16 @@
         <div class="stage-controls"><button id="startBtn" class="primary-btn control-btn">▶ เริ่มเกม</button><button id="revealBtn" class="orange-btn control-btn hidden">👀 เฉลยก่อนหมดเวลา</button><button id="nextBtn" class="primary-btn control-btn hidden">⏭ ข้ามช่วงเฉลย</button><button id="resetBtn" class="outline-btn">↺ เริ่มรอบใหม่</button><button id="fullscreenBtn" class="outline-btn">⛶ เต็มจอ</button></div>
         <p class="status-msg" id="hostMessage" aria-live="polite"></p>
       </section>
-      <aside class="side-stack"><section class="panel glass"><div class="section-title"><h2>🏆 ตารางคะแนน</h2><span class="small-muted">TOP 5</span></div><div id="hostLeaderboard" class="leaderboard"><p class="small-muted">คะแนนจะแสดงหลังเฉลยคำถาม</p></div><button id="exportBtn" class="outline-btn block">⬇ ส่งออกคะแนน CSV</button></section><section class="panel glass"><div class="section-title"><h2>⚙️ คลังคำถาม</h2><span id="editState" class="small-muted">แก้ไขก่อนเริ่มเกม</span></div><p class="small-muted">มีคลังคำถาม 30 ข้อจากไวนิล 3 แผ่น • สุ่มเล่นรอบละ 10 ข้อ พร้อมสลับลำดับตัวเลือก • แก้ไขได้ก่อนเริ่มเกม</p><div id="questionList" class="question-list"></div><button id="addQ" class="outline-btn block hidden">+ เพิ่มคำถาม</button><div class="question-import-export"><button id="importQ" class="outline-btn" type="button">📂 นำเข้าคำถาม JSON</button><button id="exportQ" class="outline-btn" type="button">⬇ ส่งออกคำถาม JSON</button><input id="questionsFile" type="file" accept=".json,application/json" hidden /></div><button id="saveQ" class="primary-btn block">บันทึกชุดคำถาม</button><p id="editMessage" class="status-msg"></p></section></aside>
+      <aside class="side-stack">    <section class="roster-panel glass" aria-label="รายชื่อผู้เข้าร่วมเกม">
+      <div class="roster-heading">
+        <div><h2>👥 รายชื่อผู้เข้าร่วมเกม <span class="roster-count" id="rosterCount">0 / 100 คน</span></h2>
+          <p id="rosterSubtitle" class="small-muted">แสดงผู้ที่เข้าร่วมสำเร็จหลังกรอกชื่อ ไม่ใช่เพียงสแกน QR</p></div>
+        <label class="roster-search-label" for="rosterSearch">ค้นหาชื่อ <input id="rosterSearch" type="search" placeholder="พิมพ์ชื่อผู้เล่น…" autocomplete="off" /></label>
+      </div>
+      <div class="roster-progress" aria-hidden="true"><span id="rosterProgressFill"></span></div>
+      <div class="roster-list" id="rosterList" aria-live="polite"><p class="small-muted">ยังไม่มีผู้เข้าร่วมเกม</p></div>
+    </section>
+<section class="panel glass"><div class="section-title"><h2>🏆 ตารางคะแนน</h2><span class="small-muted">TOP 5</span></div><div id="hostLeaderboard" class="leaderboard"><p class="small-muted">คะแนนจะแสดงหลังเฉลยคำถาม</p></div><button id="exportBtn" class="outline-btn block">⬇ ส่งออกคะแนน CSV</button></section><section class="panel glass"><div class="section-title"><h2>⚙️ คลังคำถาม</h2><span id="editState" class="small-muted">แก้ไขก่อนเริ่มเกม</span></div><p class="small-muted">มีคลังคำถาม 30 ข้อจากไวนิล 3 แผ่น • สุ่มเล่นรอบละ 10 ข้อ พร้อมสลับลำดับตัวเลือก • แก้ไขได้ก่อนเริ่มเกม</p><div id="questionList" class="question-list"></div><button id="addQ" class="outline-btn block hidden">+ เพิ่มคำถาม</button><div class="question-import-export"><button id="importQ" class="outline-btn" type="button">📂 นำเข้าคำถาม JSON</button><button id="exportQ" class="outline-btn" type="button">⬇ ส่งออกคำถาม JSON</button><input id="questionsFile" type="file" accept=".json,application/json" hidden /></div><button id="saveQ" class="primary-btn block">บันทึกชุดคำถาม</button><p id="editMessage" class="status-msg"></p></section></aside>
     </div>
   </section>
 </main>
