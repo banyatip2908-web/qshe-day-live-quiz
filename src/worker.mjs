@@ -7,6 +7,7 @@ const auth = (request, env) => Boolean(env.CREATE_KEY) && request.headers.get('X
 const roomStub = (env,pin) => env.ROOMS.get(env.ROOMS.idFromName(pin));
 const secret = () => crypto.randomUUID()+'-'+crypto.randomUUID();
 const REVEAL_DURATION_MS = 6000; // Show the answer before advancing automatically
+const QUESTION_DURATION_SECONDS = 20; // Every question has a fixed 20-second limit
 
 export default {
   async fetch(request, env) {
@@ -127,7 +128,7 @@ export class QuizRoom extends DurableObject {
     const index=this.game.index;
     const original=this.game.questions[this.game.order[index]];
     const optionOrder=this.game.optionOrders?.[index] || [0,1,2,3];
-    return {...original,choices:optionOrder.map(i=>original.choices[i]),correct:optionOrder.indexOf(original.correct)};
+    return {...original,seconds:QUESTION_DURATION_SECONDS,choices:optionOrder.map(i=>original.choices[i]),correct:optionOrder.indexOf(original.correct)};
   }
   questionPublic(){
     const {index,questions,status,endAt}=this.game;
@@ -147,7 +148,7 @@ export class QuizRoom extends DurableObject {
     return {type:'state',pin,status,serverNow:Date.now(),question:this.questionPublic(),players:this.players.size,answered:this.answerCount(),
       yourName:p?.name, yourScore:place?.score||0, yourRank:showRanking?place?.rank:null, yourAnswer:answered===undefined?null:answered.selected,
       leaderboard:showRanking?ranking.slice(0,5).map(({name,score,rank})=>({name,score,rank})):[],
-      ...(host?{questions, host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
+      ...(host?{questions:questions.map(q=>({...q,seconds:QUESTION_DURATION_SECONDS})), host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
   }
   safeSend(ws,msg){try{ws.send(JSON.stringify(msg));}catch{}}
   sendState(ws){const a=ws.deserializeAttachment();if(a)this.safeSend(ws,this.stateFor(a));}
