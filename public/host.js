@@ -64,7 +64,13 @@ function connect(){clearTimeout(reconnect);const proto=location.protocol==='http
  socket.onerror=()=>socket.close();
  socket.onclose=()=>{$('connLabel').textContent='ขาดการเชื่อมต่อ — กำลังเชื่อมใหม่';$('connDot').style.background='#ef8589';reconnect=setTimeout(connect,1900)};
 }
-function updateStats(s){$('playerCount').textContent=s.players+'/100'; $('answeredCount').textContent=s.answered;}
+function updateStats(s){
+ $('playerCount').textContent=s.players+'/100';$('answeredCount').textContent=s.answered;
+ if(state?.status==='question'){
+   $('allAnsweredHint').textContent='ตอบแล้ว '+s.answered+'/'+s.players+
+     ' คน · ตอบครบทุกคน เฉลยทันที (หรือเมื่อหมดเวลา)';
+ }
+}
 function message(s,kind='ok'){const el=$('hostMessage');el.textContent=s;el.style.color=kind==='error'?'#ffa4ae':'#9cf4bc';setTimeout(()=>{if(el.textContent===s)el.textContent='';},6500)}
 function command(type,additional={}){if(socket?.readyState!==WebSocket.OPEN){message('ยังไม่เชื่อมต่อเซิร์ฟเวอร์','error');return;}socket.send(JSON.stringify({type,...additional}));}
 function render(s){
@@ -75,7 +81,7 @@ function render(s){
  show('lobbyStage',s.status==='lobby');show('questionStage',['question','reveal'].includes(s.status));show('finishStage',s.status==='finished');
  show('startBtn',s.status==='lobby');show('revealBtn',s.status==='question');show('nextBtn',s.status==='reveal');
  $('nextBtn').textContent=s.question?.index===s.question?.total?'⏭ จบเกมทันที':'⏭ ข้ามช่วงเฉลย';
- show('autoAdvanceMessage',s.status==='reveal');
+ show('autoAdvanceMessage',s.status==='reveal');show('allAnsweredHint',s.status==='question');
  $('editState').textContent=s.status==='lobby'?'แก้ไขก่อนเริ่มเกม':'ล็อกการแก้ไขแล้ว';
  $('addQ').disabled=s.status!=='lobby';$('saveQ').disabled=s.status!=='lobby';$('importQ').disabled=s.status!=='lobby';
  if(!dirty || !wasLobby || s.status!=='lobby'){questions=deepCopy(s.questions);dirty=false;drawQuestions();}
