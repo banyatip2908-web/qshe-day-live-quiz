@@ -9,7 +9,7 @@ export const DEFAULT_QUESTIONS = [
       "ขนาดอาคารสำนักงาน"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 ระบุว่าอุณหภูมิ ความชื้น ปริมาณฝน และทิศทางลมส่งผลต่อการฟุ้งกระจาย การขนส่ง และการรับรู้กลิ่น"
@@ -23,7 +23,7 @@ export const DEFAULT_QUESTIONS = [
       "ลมจะหยุดพัด"
     ],
     "correct": 1,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 ระบุว่าถนน ลานทำงาน และลานกองวัสดุอาจแห้งมากขึ้น"
@@ -37,7 +37,7 @@ export const DEFAULT_QUESTIONS = [
       "หยุดตรวจพื้นที่"
     ],
     "correct": 1,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 แนะนำให้ฉีดพรมน้ำและทำความสะอาดพื้นที่เสี่ยง"
@@ -51,7 +51,7 @@ export const DEFAULT_QUESTIONS = [
       "จำนวนพนักงาน"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 ระบุว่าฝุ่นและกลิ่นอาจกระจายได้รวดเร็วขึ้นและพื้นที่ได้รับผลกระทบอาจเปลี่ยนไป"
@@ -65,7 +65,7 @@ export const DEFAULT_QUESTIONS = [
       "เวลาพักกลางวัน"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 แสดงทิศทางลมเป็นหนึ่งในจุดที่ควรเฝ้าระวัง"
@@ -79,7 +79,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่มีความเกี่ยวข้องใด ๆ"
     ],
     "correct": 1,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 ระบุว่า Climate Change ไม่ได้เป็นแหล่งกำเนิด PM2.5 โดยตรง แต่สภาพอากาศอาจมีผลต่อการกระจายหรือสะสมของฝุ่น"
@@ -93,7 +93,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่มีการเปลี่ยนแปลงได้เลย"
     ],
     "correct": 1,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 ระบุว่าอุณหภูมิสูงอาจเร่งการย่อยสลายของสารอินทรีย์บางประเภท"
@@ -107,7 +107,7 @@ export const DEFAULT_QUESTIONS = [
       "ปิดบันทึกข้อมูล"
     ],
     "correct": 1,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 แนะนำให้ควบคุมกลิ่นจากต้นทางและเพิ่มการตรวจพื้นที่"
@@ -121,7 +121,7 @@ export const DEFAULT_QUESTIONS = [
       "งดทำความสะอาด"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 แนะนำการควบคุมความเร็วและปิดคลุมวัสดุระหว่างขนส่ง"
@@ -135,7 +135,7 @@ export const DEFAULT_QUESTIONS = [
       "จำนวนโต๊ะ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "อากาศ · ป้าย 1",
     "source": "ไวนิลแผ่นที่ 1",
     "explanation": "ป้ายที่ 1 แนะนำติดตามทิศทางลม ความเร็วลม และสภาพอากาศ"
@@ -149,7 +149,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่มีน้ำไหลบ่า"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 ระบุว่าน้ำชะจากกองวัสดุและของเสียอาจเพิ่มขึ้น"
@@ -163,7 +163,7 @@ export const DEFAULT_QUESTIONS = [
       "ระบบปรับอากาศสำนักงานเท่านั้น"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 ระบุถึงความเสี่ยงต่อการไหลบ่าสู่จุดอื่นและแหล่งน้ำ"
@@ -177,7 +177,7 @@ export const DEFAULT_QUESTIONS = [
       "น้ำท่วมกองวัสดุเสมอ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 ระบุว่ากองวัสดุแห้งเสี่ยงต่อการฟุ้งกระจายและเกิดฝุ่น"
@@ -191,7 +191,7 @@ export const DEFAULT_QUESTIONS = [
       "กองวัสดุหายไป"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 ระบุความเสี่ยงต่อการลุกไหม้ในกองวัสดุ"
@@ -205,7 +205,7 @@ export const DEFAULT_QUESTIONS = [
       "ของเสียเปลี่ยนชนิด"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 ระบุว่าลมแรงทำให้ฝุ่นและเศษวัสดุฟุ้งกระจายไปยังพื้นที่ใกล้เคียง"
@@ -219,7 +219,7 @@ export const DEFAULT_QUESTIONS = [
       "ขวดน้ำดื่มส่วนตัว"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 แสดงกากอ้อย (Bagasse) เป็นตัวอย่างกากอุตสาหกรรม"
@@ -233,7 +233,7 @@ export const DEFAULT_QUESTIONS = [
       "ควันปล่อง"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 แสดงกากตะกอนหม้อกรอง (Filter Cake)"
@@ -247,7 +247,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่ต้องตรวจสภาพ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 แนะนำให้คัดแยกประเภทของเสียให้ชัดเจน"
@@ -261,7 +261,7 @@ export const DEFAULT_QUESTIONS = [
       "พื้นที่เปิดให้ลมพัดวัสดุออก"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 ระบุการจัดเก็บบนพื้นคอนกรีตที่แข็งแรงและมีระบบรองรับน้ำชะ"
@@ -275,7 +275,7 @@ export const DEFAULT_QUESTIONS = [
       "งดตรวจสภาพ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "กากและของเสีย · ป้าย 2",
     "source": "ไวนิลแผ่นที่ 2",
     "explanation": "ป้ายที่ 2 แนะนำการป้องกันการเกิดไฟไหม้ในกองวัสดุและตรวจสอบสภาพพื้นที่"
@@ -289,7 +289,7 @@ export const DEFAULT_QUESTIONS = [
       "กลายเป็นน้ำทะเล"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 ระบุว่าช่วงฝนน้อยน้ำที่โรงงานมีใช้อาจลดลง"
@@ -303,7 +303,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่มีน้ำไหลบ่า"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 ระบุว่าน้ำฝนอาจไหลเข้าสู่ระบบรวบรวมน้ำเสียมากขึ้น"
@@ -317,7 +317,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่มีผลใด ๆ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 ระบุถึงความเสี่ยงต่อน้ำล้น ระดับน้ำสูง หรือระบบระบายน้ำไม่ทัน"
@@ -331,7 +331,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่มีการเปลี่ยนแปลงใด"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 ระบุว่าอุณหภูมิน้ำอาจสูงขึ้นและกระทบการทำงานของจุลินทรีย์"
@@ -345,7 +345,7 @@ export const DEFAULT_QUESTIONS = [
       "อายุอาคาร"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 ระบุค่าคุณภาพน้ำ pH, BOD, COD และ TSS"
@@ -359,7 +359,7 @@ export const DEFAULT_QUESTIONS = [
       "ยี่ห้อโทรศัพท์"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 ระบุระดับน้ำในบ่อเป็นสิ่งที่ต้องเฝ้าระวัง"
@@ -373,7 +373,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่ติดตามการใช้น้ำ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 แนะนำการใช้น้ำอย่างคุ้มค่าและเพิ่มการ Reuse / Recycle"
@@ -387,7 +387,7 @@ export const DEFAULT_QUESTIONS = [
       "หยุดตรวจวัด"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 แนะนำให้แยกน้ำฝนออกจากระบบน้ำเสียเท่าที่สามารถดำเนินการได้"
@@ -401,7 +401,7 @@ export const DEFAULT_QUESTIONS = [
       "นำของเสียไปกองในรางระบายน้ำ"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 แนะนำให้เตรียมพื้นที่หรือความจุสำรองรองรับน้ำช่วงฝนตกหนัก"
@@ -415,7 +415,7 @@ export const DEFAULT_QUESTIONS = [
       "ไม่บันทึกผล"
     ],
     "correct": 0,
-    "seconds": 25,
+    "seconds": 20,
     "topic": "น้ำเสีย · ป้าย 3",
     "source": "ไวนิลแผ่นที่ 3",
     "explanation": "ป้ายที่ 3 แนะนำเพิ่มความถี่ในการตรวจติดตามคุณภาพน้ำเมื่อสภาพอากาศผิดปกติ"
@@ -432,7 +432,7 @@ export function validateQuestions(input) {
     if(choices.length!==4||choices.some(x=>!x||x.length>125))throw new Error(`ข้อ ${i+1}: ต้องมีตัวเลือกครบ 4 ข้อ`);
     if(!Number.isInteger(correct)||correct<0||correct>3)throw new Error(`ข้อ ${i+1}: เลือกเฉลยที่ถูกต้อง`);
     if(!Number.isInteger(seconds)||seconds<10||seconds>60)throw new Error(`ข้อ ${i+1}: เวลาต้องอยู่ระหว่าง 10–60 วินาที`);
-    return {text,choices,correct,seconds,topic:String(q.topic||'Climate Change').slice(0,40),source:String(q.source||'').slice(0,60),explanation:String(q.explanation||'').slice(0,350)};
+    return {text,choices,correct,seconds:20,topic:String(q.topic||'Climate Change').slice(0,40),source:String(q.source||'').slice(0,60),explanation:String(q.explanation||'').slice(0,350)};
   });
 }
 
