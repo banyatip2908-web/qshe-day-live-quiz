@@ -35,7 +35,7 @@
 .reference-music-footer a{color:#a7dcff;text-decoration:underline}
 @media(max-width:620px){.reference-music-panel{padding:12px}.reference-music-player{width:100%;min-height:210px}.reference-music-player iframe{min-height:210px}}
 
-/* Host-only live participant roster: useful for 1–100 entrants on one projector/dashboard. */
+/* Host-only live participant roster: up to 500 entrants with scroll and search. */
 .roster-panel{margin:15px 0 20px;padding:20px 22px;min-width:0}
 .roster-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px}
 .roster-heading h2{font:700 clamp(18px,2vw,25px) Kanit,sans-serif;margin:0 0 4px;color:#fff}
