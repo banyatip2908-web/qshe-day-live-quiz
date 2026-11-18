@@ -8,6 +8,7 @@ const roomStub = (env,pin) => env.ROOMS.get(env.ROOMS.idFromName(pin));
 const secret = () => crypto.randomUUID()+'-'+crypto.randomUUID();
 const REVEAL_DURATION_MS = 6000; // Show the answer before advancing automatically
 const QUESTION_DURATION_SECONDS = 20; // Every question has a fixed 20-second limit
+const MAX_PLAYERS = 500; // One live quiz room
 
 export default {
   async fetch(request, env) {
@@ -85,7 +86,7 @@ export class QuizRoom extends DurableObject {
       }
       if (!p) {
         if (this.game.status!=='lobby') return json({error:'เกมเริ่มแล้ว กรุณารอรอบใหม่ (ผู้เล่นเดิมสามารถกลับเข้าห้องได้)'},409);
-        if (this.players.size >= 100) return json({error:'ห้องเต็มแล้ว (100 คน)'},429);
+        if (this.players.size >= MAX_PLAYERS) return json({error:`ห้องเต็มแล้ว (${MAX_PLAYERS} คน)`},429);
         p={id:crypto.randomUUID(),token:secret(),name,score:0,roundId:this.game.roundId,answers:{},joinedAt:Date.now()};
         this.players.set(p.id,p);
       } else p.name=name;
@@ -129,7 +130,7 @@ export class QuizRoom extends DurableObject {
     return ids.map(id=>this.players.get(id)).filter(Boolean)
       .sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)||a.id.localeCompare(b.id))
       .map(p=>({
-        name:p.name,
+        id:p.id,name:p.name,
         answered:status==='question'||status==='reveal'
           ?p.roundId===this.game.roundId && Object.prototype.hasOwnProperty.call(p.answers||{},this.game.index)
           :false
@@ -154,22 +155,26 @@ export class QuizRoom extends DurableObject {
     const reveal=status==='reveal'||status==='finished';
     return {index:index+1,total:this.game.order.length,text:q.text,choices:q.choices,topic:q.topic,seconds:q.seconds,endAt,multiplier:index===this.game.order.length-1?2:1,correct:reveal?q.correct:undefined,source:reveal?q.source:undefined,explanation:reveal?q.explanation:undefined};
   }
-  stateFor(a){
+  stateFor(a, prepared=null){
     const {pin,status,index,questions}=this.game;
     const host=a.role==='host';
     const p=host?null:this.players.get(a.id);
-    const ranking=this.ranking();
+    const ranking=prepared?.ranking || this.ranking();
     const place=p?ranking.find(r=>r.id===p.id):null;
     const answered=p?.roundId===this.game.roundId?p.answers[index]:undefined;
     const showRanking=status==='reveal'||status==='finished';
-    return {type:'state',pin,status,serverNow:Date.now(),question:this.questionPublic(),players:this.players.size,answered:this.answerCount(),
+    return {type:'state',pin,status,serverNow:Date.now(),question:this.questionPublic(),players:this.players.size,answered:prepared?.answered??this.answerCount(),
       yourName:p?.name, yourScore:place?.score||0, yourRank:showRanking?place?.rank:null, yourAnswer:answered===undefined?null:answered.selected,
       leaderboard:showRanking?ranking.slice(0,5).map(({name,score,rank})=>({name,score,rank})):[],
-      ...(host?{roster:this.hostRoster(),questions:questions.map(q=>({...q,seconds:QUESTION_DURATION_SECONDS})), host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
+      ...(host?{roster:prepared?.roster || this.hostRoster(),questions:questions.map(q=>({...q,seconds:QUESTION_DURATION_SECONDS})), host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
   }
   safeSend(ws,msg){try{ws.send(JSON.stringify(msg));}catch{}}
-  sendState(ws){const a=ws.deserializeAttachment();if(a)this.safeSend(ws,this.stateFor(a));}
-  broadcastAll(){for(const ws of this.ctx.getWebSockets())this.sendState(ws);}
+  sendState(ws,prepared=null){const a=ws.deserializeAttachment();if(a)this.safeSend(ws,this.stateFor(a,prepared));}
+  broadcastAll(){
+    // Precompute expensive ranking and roster once for all 500 recipients.
+    const prepared={ranking:this.ranking(),answered:this.answerCount(),roster:this.hostRoster()};
+    for(const ws of this.ctx.getWebSockets())this.sendState(ws,prepared);
+  }
   broadcastHosts(msg){for(const ws of this.ctx.getWebSockets())if(ws.deserializeAttachment()?.role==='host')this.safeSend(ws,msg);}
   async command(type,data){
     if(type==='questions'){
@@ -268,7 +273,9 @@ export class QuizRoom extends DurableObject {
       await this.ctx.storage.put('p:'+p.id,p);
       this.safeSend(ws,{type:'answerAck',selected});
       const answered=this.answerCount();
-      this.broadcastRoster();
+      // Send one small update to the host instead of rebuilding/transmitting
+      // the full 500-person roster for each individual answer.
+      this.broadcastHosts({type:'answerStatus',id:p.id,players:this.roundRoster().length,answered});
       // Immediately reveal when every registered player answered this question.
       // A timer alarm remains the fallback for missing/offline players.
       if(this.game.status==='question' && this.roundRoster().length>0 &&
