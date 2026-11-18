@@ -3,6 +3,7 @@ const $=id=>document.getElementById(id),show=(id,yes)=>$(id).classList.toggle('h
 const shapes=['▲','◆','●','■'];
 let room='',token='',socket=null,state=null,clockSkew=0,questions=[],editAt=-1,reconnect=null,dirty=false;
 let rosterEntries=[];
+const rosterNodes=new Map();
 const gameAudio=createGameAudio();
 let soundEnabled=false;
 let youtubeMode=false;
@@ -61,12 +62,12 @@ function initHost(){
 function connect(){clearTimeout(reconnect);const proto=location.protocol==='https:'?'wss:':'ws:';
  socket=new WebSocket(`${proto}//${location.host}/api/rooms/${room}/ws?${new URLSearchParams({role:'host',token})}`);
  socket.onopen=()=>{$('connLabel').textContent='เชื่อมต่อแล้ว';$('connDot').style.background='#4fe6a3';};
- socket.onmessage=e=>{if(e.data==='pong')return;let d;try{d=JSON.parse(e.data)}catch{return;}if(d.type==='state')render(d);if(d.type==='stats'){updateStats(d);}if(d.type==='roster'){updateStats(d);drawRoster(d.roster);}if(d.type==='error'){message(d.error,'error');}};
+ socket.onmessage=e=>{if(e.data==='pong')return;let d;try{d=JSON.parse(e.data)}catch{return;}if(d.type==='state')render(d);if(d.type==='stats'){updateStats(d);}if(d.type==='roster'){updateStats(d);drawRoster(d.roster);}if(d.type==='answerStatus'){updateRosterAnswer(d);}if(d.type==='error'){message(d.error,'error');}};
  socket.onerror=()=>socket.close();
  socket.onclose=()=>{$('connLabel').textContent='ขาดการเชื่อมต่อ — กำลังเชื่อมใหม่';$('connDot').style.background='#ef8589';reconnect=setTimeout(connect,1900)};
 }
 function updateStats(s){
- $('playerCount').textContent=s.players+'/100';$('answeredCount').textContent=s.answered;
+ $('playerCount').textContent=s.players+'/500';$('answeredCount').textContent=s.answered;
  if(state?.status==='question'){
    $('allAnsweredHint').textContent='ตอบแล้ว '+s.answered+'/'+s.players+
      ' คน · ตอบครบทุกคน เฉลยทันที (หรือเมื่อหมดเวลา)';
@@ -75,14 +76,15 @@ function updateStats(s){
 function drawRoster(entries){
   if(!Array.isArray(entries))return;
   rosterEntries=entries;
+  rosterNodes.clear();
   const count=entries.length;
-  $('rosterCount').textContent=count+' / 100 คน';
+  $('rosterCount').textContent=count+' / 500 คน';
   const active=state && state.status!=='lobby';
   const answered=entries.filter(p=>p.answered).length;
   $('rosterSubtitle').textContent=active
     ?'ผู้เล่นในรอบนี้ '+count+' คน'+(state.status==='question'||state.status==='reveal'?' · ตอบข้อปัจจุบันแล้ว '+answered+' คน':' · จบการแข่งขันแล้ว')
     :'แสดงผู้ที่กดเข้าร่วมสำเร็จหลังกรอกชื่อ · กดเริ่มเกมเพื่อยืนยันจำนวนผู้เล่น';
-  $('rosterProgressFill').style.width=Math.min(100,count)+'%';
+  $('rosterProgressFill').style.width=Math.min(100,count/500*100)+'%';
   const term=$('rosterSearch').value.trim().toLocaleLowerCase('th');
   const list=$('rosterList');list.replaceChildren();
   let visible=0;
@@ -90,6 +92,7 @@ function drawRoster(entries){
     if(term&&!p.name.toLocaleLowerCase('th').includes(term))return;
     visible++;
     const row=document.createElement('div');row.className='roster-person';
+    row.dataset.playerId=p.id;
     if(active&&(state.status==='question'||state.status==='reveal'))
       row.classList.add(p.answered?'roster-answered':'roster-pending');
     const number=document.createElement('span');number.className='roster-number';number.textContent=String(i+1).padStart(2,'0');
@@ -100,13 +103,29 @@ function drawRoster(entries){
       status.textContent=p.answered?'✓ ตอบแล้ว':'รอตอบ';
       row.append(status);
     }
-    list.append(row);
+    list.append(row);rosterNodes.set(p.id,row);
   });
   if(!visible){
     const empty=document.createElement('p');empty.className='small-muted roster-empty';
     empty.textContent=count?'ไม่พบชื่อที่ค้นหา':'ยังไม่มีผู้เข้าร่วมเกม';
     list.append(empty);
   }
+}
+function updateRosterAnswer(msg){
+  updateStats(msg);
+  if(!state||!['question','reveal'].includes(state.status))return;
+  const item=rosterEntries.find(p=>p.id===msg.id);
+  if(!item||item.answered)return;
+  item.answered=true;
+  const row=rosterNodes.get(msg.id);
+  if(row){
+    row.classList.remove('roster-pending');
+    row.classList.add('roster-answered');
+    const label=row.querySelector('.roster-status');
+    if(label)label.textContent='✓ ตอบแล้ว';
+  }
+  const answered=rosterEntries.filter(p=>p.answered).length;
+  $('rosterSubtitle').textContent='ผู้เล่นในรอบนี้ '+rosterEntries.length+' คน · ตอบข้อปัจจุบันแล้ว '+answered+' คน';
 }
 $('rosterSearch').addEventListener('input',()=>drawRoster(rosterEntries));
 function message(s,kind='ok'){const el=$('hostMessage');el.textContent=s;el.style.color=kind==='error'?'#ffa4ae':'#9cf4bc';setTimeout(()=>{if(el.textContent===s)el.textContent='';},6500)}
