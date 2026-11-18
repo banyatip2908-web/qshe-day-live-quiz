@@ -2,6 +2,7 @@ import {createGameAudio} from './sound.js';
 const $=id=>document.getElementById(id),show=(id,yes)=>$(id).classList.toggle('hidden',!yes);
 const shapes=['▲','◆','●','■'];
 let room='',token='',socket=null,state=null,clockSkew=0,questions=[],editAt=-1,reconnect=null,dirty=false;
+let rosterEntries=[];
 const gameAudio=createGameAudio();
 let soundEnabled=false;
 let youtubeMode=false;
@@ -60,7 +61,7 @@ function initHost(){
 function connect(){clearTimeout(reconnect);const proto=location.protocol==='https:'?'wss:':'ws:';
  socket=new WebSocket(`${proto}//${location.host}/api/rooms/${room}/ws?${new URLSearchParams({role:'host',token})}`);
  socket.onopen=()=>{$('connLabel').textContent='เชื่อมต่อแล้ว';$('connDot').style.background='#4fe6a3';};
- socket.onmessage=e=>{if(e.data==='pong')return;let d;try{d=JSON.parse(e.data)}catch{return;}if(d.type==='state')render(d);if(d.type==='stats'){updateStats(d);}if(d.type==='error'){message(d.error,'error');}};
+ socket.onmessage=e=>{if(e.data==='pong')return;let d;try{d=JSON.parse(e.data)}catch{return;}if(d.type==='state')render(d);if(d.type==='stats'){updateStats(d);}if(d.type==='roster'){updateStats(d);drawRoster(d.roster);}if(d.type==='error'){message(d.error,'error');}};
  socket.onerror=()=>socket.close();
  socket.onclose=()=>{$('connLabel').textContent='ขาดการเชื่อมต่อ — กำลังเชื่อมใหม่';$('connDot').style.background='#ef8589';reconnect=setTimeout(connect,1900)};
 }
@@ -71,13 +72,50 @@ function updateStats(s){
      ' คน · ตอบครบทุกคน เฉลยทันที (หรือเมื่อหมดเวลา)';
  }
 }
+function drawRoster(entries){
+  if(!Array.isArray(entries))return;
+  rosterEntries=entries;
+  const count=entries.length;
+  $('rosterCount').textContent=count+' / 100 คน';
+  const active=state && state.status!=='lobby';
+  const answered=entries.filter(p=>p.answered).length;
+  $('rosterSubtitle').textContent=active
+    ?'ผู้เล่นในรอบนี้ '+count+' คน'+(state.status==='question'||state.status==='reveal'?' · ตอบข้อปัจจุบันแล้ว '+answered+' คน':' · จบการแข่งขันแล้ว')
+    :'แสดงผู้ที่กดเข้าร่วมสำเร็จหลังกรอกชื่อ · กดเริ่มเกมเพื่อยืนยันจำนวนผู้เล่น';
+  $('rosterProgressFill').style.width=Math.min(100,count)+'%';
+  const term=$('rosterSearch').value.trim().toLocaleLowerCase('th');
+  const list=$('rosterList');list.replaceChildren();
+  let visible=0;
+  entries.forEach((p,i)=>{
+    if(term&&!p.name.toLocaleLowerCase('th').includes(term))return;
+    visible++;
+    const row=document.createElement('div');row.className='roster-person';
+    if(active&&(state.status==='question'||state.status==='reveal'))
+      row.classList.add(p.answered?'roster-answered':'roster-pending');
+    const number=document.createElement('span');number.className='roster-number';number.textContent=String(i+1).padStart(2,'0');
+    const name=document.createElement('span');name.className='roster-person-name';name.textContent=p.name;
+    row.append(number,name);
+    if(active&&(state.status==='question'||state.status==='reveal')){
+      const status=document.createElement('span');status.className='roster-status';
+      status.textContent=p.answered?'✓ ตอบแล้ว':'รอตอบ';
+      row.append(status);
+    }
+    list.append(row);
+  });
+  if(!visible){
+    const empty=document.createElement('p');empty.className='small-muted roster-empty';
+    empty.textContent=count?'ไม่พบชื่อที่ค้นหา':'ยังไม่มีผู้เข้าร่วมเกม';
+    list.append(empty);
+  }
+}
+$('rosterSearch').addEventListener('input',()=>drawRoster(rosterEntries));
 function message(s,kind='ok'){const el=$('hostMessage');el.textContent=s;el.style.color=kind==='error'?'#ffa4ae':'#9cf4bc';setTimeout(()=>{if(el.textContent===s)el.textContent='';},6500)}
 function command(type,additional={}){if(socket?.readyState!==WebSocket.OPEN){message('ยังไม่เชื่อมต่อเซิร์ฟเวอร์','error');return;}socket.send(JSON.stringify({type,...additional}));}
 function render(s){
  const wasLobby=state?.status==='lobby';state=s;clockSkew=Date.now()-(s.serverNow||Date.now());
  gameAudio.setPhase(s.status);
  $('phaseLabel').textContent={lobby:'รอเริ่มเกม',question:'กำลังตอบคำถาม',reveal:'เฉลยคำตอบ',finished:'เกมจบแล้ว'}[s.status]||s.status;
- $('stageTag').textContent=s.status.toUpperCase();updateStats(s);$('totalQuestions').textContent=10;
+ $('stageTag').textContent=s.status.toUpperCase();updateStats(s);drawRoster(s.roster);$('totalQuestions').textContent=10;
  show('lobbyStage',s.status==='lobby');show('questionStage',['question','reveal'].includes(s.status));show('finishStage',s.status==='finished');
  show('startBtn',s.status==='lobby');show('revealBtn',s.status==='question');show('nextBtn',s.status==='reveal');
  $('nextBtn').textContent=s.question?.index===s.question?.total?'⏭ จบเกมทันที':'⏭ ข้ามช่วงเฉลย';
