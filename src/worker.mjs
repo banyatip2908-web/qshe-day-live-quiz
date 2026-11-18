@@ -90,7 +90,7 @@ export class QuizRoom extends DurableObject {
         this.players.set(p.id,p);
       } else p.name=name;
       await this.ctx.storage.put('p:'+p.id,p);
-      this.broadcastHosts({type:'stats',players:this.players.size,answered:this.answerCount()});
+      this.broadcastRoster();
       return json({pin:this.game.pin,playerId:p.id,token:p.token,name:p.name});
     }
     if (u.pathname==='/export' && request.method==='GET') {
@@ -123,6 +123,23 @@ export class QuizRoom extends DurableObject {
   roundRoster(){return Array.isArray(this.game.participantIds)&&this.game.participantIds.length
     ? this.game.participantIds : [...this.players.keys()];}
   answerCount(){return countAnsweredPlayers(this.players,this.roundRoster(),this.game.roundId,this.game.index);}
+  hostRoster(){
+    const ids=this.game.status==='lobby'?[...this.players.keys()]:this.roundRoster();
+    const status=this.game.status;
+    return ids.map(id=>this.players.get(id)).filter(Boolean)
+      .sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0)||a.id.localeCompare(b.id))
+      .map(p=>({
+        name:p.name,
+        answered:status==='question'||status==='reveal'
+          ?p.roundId===this.game.roundId && Object.prototype.hasOwnProperty.call(p.answers||{},this.game.index)
+          :false
+      }));
+  }
+  broadcastRoster(){
+    this.broadcastHosts({type:'roster',roster:this.hostRoster(),
+      players:this.game.status==='lobby'?this.players.size:this.roundRoster().length,
+      answered:this.answerCount()});
+  }
   ranking(){return getRanking(this.players,this.game.roundId);}
   roundQuestion(){
     const index=this.game.index;
@@ -148,7 +165,7 @@ export class QuizRoom extends DurableObject {
     return {type:'state',pin,status,serverNow:Date.now(),question:this.questionPublic(),players:this.players.size,answered:this.answerCount(),
       yourName:p?.name, yourScore:place?.score||0, yourRank:showRanking?place?.rank:null, yourAnswer:answered===undefined?null:answered.selected,
       leaderboard:showRanking?ranking.slice(0,5).map(({name,score,rank})=>({name,score,rank})):[],
-      ...(host?{questions:questions.map(q=>({...q,seconds:QUESTION_DURATION_SECONDS})), host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
+      ...(host?{roster:this.hostRoster(),questions:questions.map(q=>({...q,seconds:QUESTION_DURATION_SECONDS})), host:true,bonusWinner:status==='finished'?(this.game.bonusWinner||null):null,bonusEligibleCount:status==='finished'?Math.max(0,ranking.length-5):0}: {})};
   }
   safeSend(ws,msg){try{ws.send(JSON.stringify(msg));}catch{}}
   sendState(ws){const a=ws.deserializeAttachment();if(a)this.safeSend(ws,this.stateFor(a));}
@@ -251,7 +268,7 @@ export class QuizRoom extends DurableObject {
       await this.ctx.storage.put('p:'+p.id,p);
       this.safeSend(ws,{type:'answerAck',selected});
       const answered=this.answerCount();
-      this.broadcastHosts({type:'stats',players:this.roundRoster().length,answered});
+      this.broadcastRoster();
       // Immediately reveal when every registered player answered this question.
       // A timer alarm remains the fallback for missing/offline players.
       if(this.game.status==='question' && this.roundRoster().length>0 &&
