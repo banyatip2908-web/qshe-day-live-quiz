@@ -55,3 +55,6 @@
 .roster-empty{grid-column:1/-1;text-align:center;padding:12px}
 @media(max-width:680px){.roster-panel{padding:16px}.roster-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:240px}.roster-person{padding:8px;gap:5px}.roster-search-label input{width:min(210px,58vw)}}
 @media(max-width:420px){.roster-list{grid-template-columns:1fr}}
+
+/* Keep the participant roster aligned with the question panel. */
+.side-stack .roster-panel{margin-top:0;margin-bottom:15px}
