@@ -471,4 +471,16 @@ export function getRanking(players,roundId){
   result.sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'th'));
   return result.map((p,i)=>({...p,rank:i+1}));
 }
+// Count only members of the roster frozen when the host started this round.
+// Each player is counted at most once, including after reconnects or repeat messages.
+export function countAnsweredPlayers(players, participantIds, roundId, questionIndex) {
+  if (!Array.isArray(participantIds)) return 0;
+  let count=0;
+  for(const id of new Set(participantIds)){
+    const p=players.get(id);
+    if(p && p.roundId===roundId && p.answers &&
+       Object.prototype.hasOwnProperty.call(p.answers, questionIndex)) count++;
+  }
+  return count;
+}
 export function cleanName(name){return String(name||'').trim().replace(/[<>\u0000-\u001f]/g,'').slice(0,24)};
