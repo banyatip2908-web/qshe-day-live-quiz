@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import {DEFAULT_QUESTIONS, validateQuestions, calculatePoints, getRanking, cleanName, shuffledOrder, selectRoundQuestions} from './logic.mjs';
+import {DEFAULT_QUESTIONS, validateQuestions, calculatePoints, getRanking, cleanName, shuffledOrder, selectRoundQuestions, countAnsweredPlayers} from './logic.mjs';
 
 const json = (value, status=200) => new Response(JSON.stringify(value), {status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const digits = s => /^\d{6}$/.test(s || '');
@@ -67,7 +67,7 @@ export class QuizRoom extends DurableObject {
       if (this.game) return json({error:'Room already exists'},409);
       const {pin,hostToken} = await request.json();
       if (!digits(pin) || !hostToken) return json({error:'Invalid room'},400);
-      this.game = {pin,hostToken,questions:DEFAULT_QUESTIONS,order:[],optionOrders:[],index:-1,status:'lobby',endAt:0,roundId:1,bonusWinner:null,createdAt:Date.now()};
+      this.game = {pin,hostToken,questions:DEFAULT_QUESTIONS,order:[],optionOrders:[],index:-1,status:'lobby',endAt:0,roundId:1,participantIds:[],bonusWinner:null,createdAt:Date.now()};
       await this.saveGame();
       return json({ok:true},201);
     }
@@ -83,7 +83,7 @@ export class QuizRoom extends DurableObject {
         if (existing && existing.token===data.token) p=existing;
       }
       if (!p) {
-        if (this.game.status==='finished') return json({error:'เกมนี้จบแล้ว ไม่สามารถเข้าร่วมใหม่'},409);
+        if (this.game.status!=='lobby') return json({error:'เกมเริ่มแล้ว กรุณารอรอบใหม่ (ผู้เล่นเดิมสามารถกลับเข้าห้องได้)'},409);
         if (this.players.size >= 100) return json({error:'ห้องเต็มแล้ว (100 คน)'},429);
         p={id:crypto.randomUUID(),token:secret(),name,score:0,roundId:this.game.roundId,answers:{},joinedAt:Date.now()};
         this.players.set(p.id,p);
@@ -119,7 +119,9 @@ export class QuizRoom extends DurableObject {
     return json({error:'Not found'},404);
   }
   async saveGame(){await this.ctx.storage.put('game',this.game);}
-  answerCount(){let count=0;for(const p of this.players.values())if(p.roundId===this.game.roundId && p.answers[this.game.index]!==undefined)count++;return count;}
+  roundRoster(){return Array.isArray(this.game.participantIds)&&this.game.participantIds.length
+    ? this.game.participantIds : [...this.players.keys()];}
+  answerCount(){return countAnsweredPlayers(this.players,this.roundRoster(),this.game.roundId,this.game.index);}
   ranking(){return getRanking(this.players,this.game.roundId);}
   roundQuestion(){
     const index=this.game.index;
@@ -159,6 +161,9 @@ export class QuizRoom extends DurableObject {
     }
     if(type==='start'){
       if(this.game.status!=='lobby') throw new Error('เริ่มเกมได้เมื่ออยู่หน้าเตรียมตัวเท่านั้น');
+      if(this.players.size===0)throw new Error('ต้องมีผู้เล่นเข้าร่วมอย่างน้อย 1 คนก่อนเริ่มเกม');
+      // Freeze the registered players for the entire round. Reconnecting preserves a slot.
+      this.game.participantIds=[...this.players.keys()];
       this.game.order=selectRoundQuestions(this.game.questions);
       this.game.optionOrders=this.game.order.map(()=>shuffledOrder(4));
       this.game.index=0;await this.startQuestion();return;
@@ -188,7 +193,7 @@ export class QuizRoom extends DurableObject {
       return;
     }
     if(type==='reset'){
-      this.game.status='lobby';this.game.index=-1;this.game.order=[];this.game.optionOrders=[];this.game.endAt=0;this.game.roundId++;this.game.bonusWinner=null;
+      this.game.status='lobby';this.game.index=-1;this.game.order=[];this.game.optionOrders=[];this.game.endAt=0;this.game.roundId++;this.game.participantIds=[];this.game.bonusWinner=null;
       await this.ctx.storage.deleteAlarm();await this.saveGame();this.broadcastAll();return;
     }
     throw new Error('ไม่รองรับคำสั่งนี้');
@@ -230,6 +235,10 @@ export class QuizRoom extends DurableObject {
       if(this.game.status==='question' && Date.now()>this.game.endAt){await this.reveal();}
       if(this.game.status!=='question') return this.safeSend(ws,{type:'error',error:'หมดเวลาตอบแล้ว'});
       const p=this.players.get(a.id);if(!p)return;
+      if(!this.roundRoster().includes(p.id))return this.safeSend(ws,{type:'error',error:'ผู้เล่นไม่ได้อยู่ในรอบนี้'});
+      // A slow message from the previous question must not be scored for the next one.
+      if(msg.questionIndex!==undefined && Number(msg.questionIndex)!==this.game.index+1)
+        return this.safeSend(ws,{type:'error',error:'ข้อนี้ปิดรับคำตอบแล้ว'});
       const selected=Number(msg.choice);
       if(!Number.isInteger(selected)||selected<0||selected>3)return;
       if(p.roundId!==this.game.roundId){p.score=0;p.answers={};p.roundId=this.game.roundId;}
@@ -240,7 +249,12 @@ export class QuizRoom extends DurableObject {
       p.score+=gain;p.answers[this.game.index]={selected,gain};
       await this.ctx.storage.put('p:'+p.id,p);
       this.safeSend(ws,{type:'answerAck',selected});
-      this.broadcastHosts({type:'stats',players:this.players.size,answered:this.answerCount()});
+      const answered=this.answerCount();
+      this.broadcastHosts({type:'stats',players:this.roundRoster().length,answered});
+      // Immediately reveal when every registered player answered this question.
+      // A timer alarm remains the fallback for missing/offline players.
+      if(this.game.status==='question' && this.roundRoster().length>0 &&
+         answered===this.roundRoster().length)await this.reveal();
     }
   }
   webSocketClose(ws){try{ws.close(1000,'closed');}catch{}}
