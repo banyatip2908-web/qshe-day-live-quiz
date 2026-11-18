@@ -39,3 +39,13 @@ test('zero players and absent answers do not trigger a completed round',()=>{
  assert.equal(countAnsweredPlayers(players,[],1,0),0);
  assert.equal(countAnsweredPlayers(players,null,1,0),0);
 });
+
+test('500-player room counts exactly 500 unique responses and resets by question',()=>{
+ const {players,roster}=session(500);
+ for(let i=0;i<499;i++)players.get(roster[i]).answers[0]={selected:i%4};
+ assert.equal(countAnsweredPlayers(players,roster,1,0),499);
+ players.get(roster[499]).answers[0]={selected:3};
+ assert.equal(countAnsweredPlayers(players,roster,1,0),500);
+ assert.equal(countAnsweredPlayers(players,roster,1,1),0);
+ assert.equal(countAnsweredPlayers(players,[...roster,roster[0]],1,0),500);
+});
