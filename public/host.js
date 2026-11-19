@@ -223,7 +223,7 @@ $('deleteQ').onclick=()=>{if(questions.length<=1)return alert('ต้องม�
 
 // Import and export compatible question packs from the standalone preview.
 $('exportQ').onclick=()=>{
-  const payload=JSON.stringify({title:'Envi QSHE Day 2026',questions},null,2);
+  const payload=JSON.stringify({title:'ENVI – QSHE DAY 2026 · ศึกตอบไว ใครรักษ์โลก',questions},null,2);
   const blob=new Blob([payload],{type:'application/json;charset=utf-8'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='Envi-QSHE-Day-2026-Questions.json';a.click();
