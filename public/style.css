@@ -58,3 +58,11 @@
 
 /* Keep the participant roster aligned with the question panel. */
 .side-stack .roster-panel{margin-top:0;margin-bottom:15px}
+
+/* Official 2026 game branding, with legible Thai title on host and player screens. */
+.game-title{font-family:Kanit,'Noto Sans Thai',sans-serif!important;font-weight:800!important;line-height:1.32!important;overflow-wrap:anywhere}
+.join-card .game-title{font-size:clamp(26px,4.6vw,37px)!important;margin-bottom:8px}
+.host-header .game-title{font-size:clamp(25px,2.9vw,37px)!important;line-height:1.25!important}
+.game-tagline{font-family:Kanit,'Noto Sans Thai',sans-serif;font-size:clamp(12px,1.4vw,15px);font-weight:600;letter-spacing:.35px;color:#c4cfff;margin:0 0 12px}
+.host-header .game-tagline{margin:4px 0 10px}
+@media(max-width:680px){.join-card .game-title{font-size:clamp(25px,7vw,32px)!important}.host-header .game-title{font-size:clamp(25px,6vw,32px)!important}}
